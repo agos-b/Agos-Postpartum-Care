@@ -74,10 +74,15 @@ async def working_hours_gate(update: Update, context: ContextTypes.DEFAULT_TYPE)
         # Bot is OFFLINE - show call message and block all features
         offline_message = (
             "⏰ *Bot is Currently Offline*\n\n"
+            "⏰ *ቦቱ በዚህ ሰአት ከአገልግሎት ውጭ ነው*\n\n"
             f"📞 Please call us at: **{CONTACT_PHONE}**\n\n"
+            f"📞 እባክዎን በዚህ ቁጥር ይደውሉልን: **{CONTACT_PHONE}**\n\n"
             "Our team is available during working hours to assist you directly.\n\n"
+            "ቡድናችን በዚህ ሰዓት እርሶን በቀጥታ ለመርዳት ዝግጁ ናችው።\n\n"
             "🤖 The bot will be available again after 8:00 PM Ethiopian Time.\n\n"
+            "🤖 ቦቱ ከምሽቱ 2:00 ሰዓት በኋላ ነው አገልግሎት የሚሰጠው።\n\n"
             "Thank you for understanding! 🙏"
+            "ስለተረዱን እናመሰግናለን! 🙏"
         )
         
         # Create keyboard with only a way to check again (optional)
@@ -114,8 +119,11 @@ async def check_again_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
         # Still within working hours
         offline_message = (
             "⏰ *Still Within Working Hours*\n\n"
+            "⏰ *አሁንም በስራ ሰዓት ውስጥ ነው*\n\n"
             f"📞 Please call us at: **{CONTACT_PHONE}**\n\n"
+            f"📞 እባክዎን በዚህ ቁጥር ይደውሉልን: **{CONTACT_PHONE}**\n\n"
             "The bot will be available after 8:00 PM Ethiopian Time."
+            "🤖 ቦቱ ከምሽቱ 2:00 ሰዓት በኋላ ነው አገልግሎት የሚሰጠው።\n\n"
         )
         await query.message.reply_text(offline_message, parse_mode='Markdown')
     else:
