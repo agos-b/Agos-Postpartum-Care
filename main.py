@@ -45,10 +45,10 @@ print("DEBUG - Admin IDs:", ADMIN_IDS)
 (D_NAME, D_GENDER, D_ADDR, D_PHONE, D_USERNAME, D_CONTACT, D_PKG, D_DATE, D_HOUSE, D_NOTES, D_PAYMENT) = range(40, 51)
 
 # Limousine Booking States
-(L_NAME, L_PHONE, L_USERNAME, L_DATE, L_ADDR, L_PACKAGE, L_PAYMENT) = range(60, 67)
+(L_NAME, L_PHONE, L_DATE, L_ADDR, L_PACKAGE, L_PAYMENT) = range(60, 66)
 
 # Photography Booking States
-(PH_NAME, PH_PHONE, PH_USERNAME, PH_DATE, PH_ADDR, PH_PACKAGE, PH_PAYMENT) = range(70, 77)  # Added PH_USERNAME
+(PH_NAME, PH_PHONE, PH_DATE, PH_ADDR, PH_PACKAGE, PH_PAYMENT) = range(70, 76)
 
 # --- WORKING HOURS CHECK ---
 def is_within_working_hours():
@@ -800,8 +800,7 @@ def create_limo_pdf(data):
 
     field_mappings = {
         'l_name': 'Full Name',
-        'l_phone': 'Contact Number',
-        'l_username': 'Telegram Username'
+        'l_phone': 'Contact Number'
     }
 
     for key, value in data.items():
@@ -911,8 +910,7 @@ def create_photo_pdf(data):
 
     field_mappings = {
         'ph_name': 'Full Name',
-        'ph_phone': 'Contact Number',
-        'ph_username': 'Telegram Username'
+        'ph_phone': 'Contact Number'
     }
 
     for key, value in data.items():
@@ -1698,33 +1696,23 @@ async def l_step2(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = context.user_data.get('lang', 'en')
     
     await update.message.reply_text(
-        "3. Your Telegram Username (e.g., @username) / የቴሌግራም መለያዎ (ለምሳሌ፡ @username):",
-        reply_markup=get_nav_kb(lang, back_callback='l_back')
-    )
-    return L_USERNAME
-
-async def l_step3(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data['l_username'] = update.message.text
-    lang = context.user_data.get('lang', 'en')
-    
-    await update.message.reply_text(
-        "4. Preferred Date & Time (e.g., 21/08/2018, Morning 4:00 AM)\n\n"
+        "3. Preferred Date & Time (e.g., 21/08/2018, Morning 4:00 AM)\n\n"
         " የሚፈልጉት ቀን እና ሰዓት (ለምሳሌ፡ 21/08/2018, ጥዋት 4፡00)",
         reply_markup=get_nav_kb(lang, back_callback='l_back')
     )
     return L_DATE
 
-async def l_step4(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def l_step3(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['l_date'] = update.message.text
     lang = context.user_data.get('lang', 'en')
     
     await update.message.reply_text(
-        "5. Pickup Address (የሚነሱበት አድራሻ) &  Destination (መዳረሻ / የቤትዎ አድራሻ)\n (ለምሳሌ፡ ከ 4 ኪሎ ሄመን ሆስፒታል ወደ ቃሊቲ) :",
+        "4. Pickup Address (የሚነሱበት አድራሻ) &  Destination (መዳረሻ / የቤትዎ አድራሻ)\n (ለምሳሌ፡ ከ 4 ኪሎ ሄመን ሆስፒታል ወደ ቃሊቲ) :",
         reply_markup=get_nav_kb(lang, back_callback='l_back')
     )
     return L_ADDR
 
-async def l_step5(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def l_step4(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['l_addr'] = update.message.text
     lang = context.user_data.get('lang', 'en')
     
@@ -1739,15 +1727,15 @@ async def l_step5(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         
         await update.message.reply_text(
-            "6. Select Package / ፓኬጅ ይምረጡ:",
+            "5. Select Package / ፓኬጅ ይምረጡ:",
             reply_markup=InlineKeyboardMarkup(kb)
         )
         return L_PACKAGE
     else:
         # Skip to payment step
-        return await l_step6(update, context)
+        return await l_step5(update, context)
 
-async def l_step6(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def l_step5(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Handle both callback query and message cases
     if hasattr(update, 'callback_query') and update.callback_query:
         query = update.callback_query
@@ -1809,7 +1797,7 @@ async def l_final(update: Update, context: ContextTypes.DEFAULT_TYPE):
     pay_img = update.message.photo[-1].file_id
     pdf_file = create_limo_pdf(context.user_data)
 
-    # Summary for admin - UPDATED with Telegram username
+    # Summary for admin - properly indented inside function
     summary = (
         f"🔔 *NEW LIMOUSINE SERVICE BOOKING / አዲስ የሊሙዚን ትዕዛዝ* 🔔\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
@@ -1818,8 +1806,7 @@ async def l_final(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"*Booking Time:* {datetime.now().strftime('%H:%M:%S')}\n\n"
         f"*1. CLIENT INFORMATION*\n"
         f"   • Full Name: {context.user_data.get('l_name')}\n"
-        f"   • Contact Number: {context.user_data.get('l_phone')}\n"
-        f"   • Telegram: {context.user_data.get('l_username')}\n\n"
+        f"   • Contact Number: {context.user_data.get('l_phone')}\n\n"
         f"*2. SERVICE DETAILS*\n"
         f"   • Package: {context.user_data.get('l_package')}\n"
         f"   • Scheduled Date: {context.user_data.get('l_date')}\n"
@@ -1833,8 +1820,7 @@ async def l_final(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"✅ Payment screenshot has been received.\n"
         f"⚠️ Please verify the payment and confirm the booking by contacting the client.\n"
-        f"📱 Client Phone: {context.user_data.get('l_phone')}\n"
-        f"📱 Client Telegram: {context.user_data.get('l_username')}"
+        f"📱 Client Phone: {context.user_data.get('l_phone')}"
     )
 
     for admin_id in ADMIN_IDS:
@@ -1904,21 +1890,21 @@ async def ph_step2(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = context.user_data.get('lang', 'en')
     
     await update.message.reply_text(
-        "3. Your Telegram Username (e.g., @username) / የቴሌግራም መለያዎ (ለምሳሌ፡ @username):",
-        reply_markup=get_nav_kb(lang, back_callback='ph_back')
-    )
-    return PH_USERNAME
-
-async def ph_step3(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data['ph_username'] = update.message.text
-    lang = context.user_data.get('lang', 'en')
-    
-    await update.message.reply_text(
-        "4. Event Date & Time (e.g., 21/08/2018, Morning 4:00 AM)\n\n"
+        "3. Event Date & Time (e.g., 21/08/2018, Morning 4:00 AM)\n\n"
         " የዝግጅቱ ቀን እና ሰዓት (ለምሳሌ፡ 21/08/2018, ጥዋት 4፡00)",
         reply_markup=get_nav_kb(lang, back_callback='ph_back')
     )
     return PH_DATE
+
+async def ph_step3(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['ph_date'] = update.message.text
+    lang = context.user_data.get('lang', 'en')
+    
+    await update.message.reply_text(
+        "4. Event Address / የዝግጅቱ አድራሻ:",
+        reply_markup=get_nav_kb(lang, back_callback='ph_back')
+    )
+    return PH_ADDR
 
 async def ph_step4(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['ph_addr'] = update.message.text
@@ -2016,7 +2002,6 @@ async def ph_final(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"*1. CLIENT INFORMATION*\n"
         f"   • Full Name: {context.user_data.get('ph_name')}\n"
         f"   • Contact Number: {context.user_data.get('ph_phone')}\n\n"
-        f"   • Telegram: {context.user_data.get('ph_username')}\n\n"  # ADD THIS LINE
         f"*2. SERVICE DETAILS*\n"
         f"   • Package: {context.user_data.get('ph_package')}\n"
         f"   • Event Date: {context.user_data.get('ph_date')}\n"
@@ -2219,10 +2204,9 @@ if __name__ == '__main__':
         states={
             L_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, l_step1)],
             L_PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, l_step2)],
-            L_USERNAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, l_step3)],  # ADD THIS
-            L_DATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, l_step4)],
-            L_ADDR: [MessageHandler(filters.TEXT & ~filters.COMMAND, l_step5)],  # Renumber
-            L_PACKAGE: [CallbackQueryHandler(l_step6)],  # Renumber
+            L_DATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, l_step3)],
+            L_ADDR: [MessageHandler(filters.TEXT & ~filters.COMMAND, l_step4)],
+            L_PACKAGE: [CallbackQueryHandler(l_step5)],
             L_PAYMENT: [MessageHandler(filters.PHOTO, l_final)]
         },
         fallbacks=[
@@ -2246,10 +2230,9 @@ if __name__ == '__main__':
         states={
             PH_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, ph_step1)],
             PH_PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, ph_step2)],
-            PH_USERNAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, ph_step3)],  # ADD THIS
-            PH_DATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, ph_step4)],
-            PH_ADDR: [MessageHandler(filters.TEXT & ~filters.COMMAND, ph_step5)],  # Renumber
-            PH_PACKAGE: [CallbackQueryHandler(ph_step6)],  # Renumber
+            PH_DATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, ph_step3)],
+            PH_ADDR: [MessageHandler(filters.TEXT & ~filters.COMMAND, ph_step4)],
+            PH_PACKAGE: [CallbackQueryHandler(ph_step5)],
             PH_PAYMENT: [MessageHandler(filters.PHOTO, ph_final)]
         },
         fallbacks=[
