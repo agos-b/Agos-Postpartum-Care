@@ -42,8 +42,7 @@ print("DEBUG - Admin IDs:", ADMIN_IDS)
 
 # --- CONVERSATION STATES ---
 # Decor Booking States (must be unique numbers)
-(D_NAME, D_GENDER, D_ADDR, D_PHONE, D_USERNAME, D_CONTACT, D_PKG, D_DATE, D_HOUSE, D_NOTES, D_PAYMENT) = range(40, 51)
-
+(D_NAME, D_GENDER, D_ADDR, D_PHONE, D_USERNAME, D_CONTACT, D_PKG, D_DATE, D_HOUSE, D_PAYMENT) = range(40, 50)
 # Limousine Booking States
 (L_NAME, L_PHONE, L_USERNAME, L_DATE, L_ADDR, L_PACKAGE, L_PAYMENT) = range(60, 67)
 
@@ -1575,20 +1574,10 @@ async def d_step9(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     await query.message.reply_text(warning_msg, parse_mode='Markdown')
     await query.message.reply_text(
-        "9. Special Notes (Limousine, Photo, Video, or None) / ልዩ ማስታወሻ (ሊሙዚን፣ ፎቶ፣ ቪዲዮ፣ ወይም ምንም):",
-        reply_markup=get_nav_kb(lang, back_callback='d_back')
-    )
-    return D_NOTES
-
-async def d_step10(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data['d_notes'] = update.message.text
-    lang = context.user_data.get('lang', 'en')
-
-    await update.message.reply_text(
         "📤 Upload your Payment Screenshot / የክፍያ ስክሪን ሾት ይላኩ:",
         reply_markup=get_nav_kb(lang, back_callback='d_back')
     )
-    return D_PAYMENT
+    return D_PAYMENT    
 
 async def d_final(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message.photo:
@@ -1620,7 +1609,6 @@ async def d_final(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"   • Service Address: {context.user_data.get('d_addr')}\n"
         f"   • House Type: {context.user_data.get('d_house')}\n"
         f"   • Preferred Date: {context.user_data.get('d_date')}\n"
-        f"   • Special Requests: {context.user_data.get('d_notes') or 'None'}\n\n"
         f"*3. PAYMENT INFORMATION*\n"
         f"   • Bank: Commercial Bank of Ethiopia (CBE)\n"
         f"   • Account Name: Sara Mohammed\n"
@@ -2217,7 +2205,6 @@ if __name__ == '__main__':
             D_PKG: [CallbackQueryHandler(d_step7)],
             D_DATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, d_step8)],
             D_HOUSE: [CallbackQueryHandler(d_step9)],
-            D_NOTES: [MessageHandler(filters.TEXT & ~filters.COMMAND, d_step10)],
             D_PAYMENT: [MessageHandler(filters.PHOTO, d_final)]
         },
         fallbacks=[
